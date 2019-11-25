@@ -5,23 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Online Slides - Viewer</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 <body>
-  <h1>Viewer</h1>
-  <h2>{{ id }}</h2>
+  <h1>Viewer<span style="visibility: hidden;" id="slideshowId">{{ id }}</span><span style="visibility: visible;" id="currentSlide">0</span></h1>
+  <img id="slide" alt="current slide" style="width:400px;">
   <script>
     var socket = io(window.location.host);
 
     socket.on('connect', function() {
-      console.log('connected');
-      socket.emit('my event', {
-        message: 'viewer connected'
+      socket.emit('connection', {
+        client_connected: 'viewer'
       });
     });
 
-    socket.on('my response', function(data) {
-      console.log(data)
+    if (window.location.hostname === "localhost") {
+      var backendUrl = "http://localhost:8000/";
+    }
+
+    let slide = document.getElementById('slide');
+    const slideshowId = document.getElementById('slideshowId').innerHTML;
+    let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+
+    let data = [];
+    axios.get(`${backendUrl}slideshows/${slideshowId}/`)
+    .then((response) => {
+      data = response.data;
+      slide.setAttribute('src', data[currentSlide]['image_url']);
+    })
+    .catch(
+      (errors) => {
+        console.log(errors.response)
+      }
+    );
+
+    socket.on('slide_change', function(slideData) {
+      currentSlide = slideData['slide'];
+      document.getElementById('currentSlide').innerText = currentSlide;
+      slide.setAttribute('src', data[currentSlide]['image_url']);
     });
   </script>
 </body>

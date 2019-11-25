@@ -5,9 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Online Slides - Controls</title>
+  <style>
+    button {
+      padding: 20px;
+    }
+  </style>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 <body>
-  <h1>Controls</h1>
-  <h2>{{ id }}</h2>
+  <h1>Controls<span style="visibility: hidden;" id="slideshowId">{{ id }}</span><span style="visibility: visible;" id="currentSlide">0</span></h1>
+  <img id="slide" alt="current slide" style="width:400px;">
+  <br/>
+  <button id="previous">&lt;</button><button id="next">&gt;</button>
+  <script>
+    // Socket setup
+    var socket = io(window.location.host);
+
+    socket.on('connect', function() {
+      socket.emit('connection', {
+        client_connected: 'controls'
+      });
+    });
+
+    socket.on('slide_change', function() {
+      console.log('received slide change');
+    });
+
+    // Working with slides
+    if (window.location.hostname === "localhost") {
+      var backendUrl = "http://localhost:8000/";
+    }
+
+    let slide = document.getElementById('slide')
+    const slideshowId = document.getElementById('slideshowId').innerHTML;
+    let data = [];
+    axios.get(`${backendUrl}slideshows/${slideshowId}/`)
+    .then((response) => {
+      data = response.data;
+      slide.setAttribute('src', data[0]['image_url']);
+    })
+    .catch(
+      (errors) => {
+        console.log(errors.response);
+      }
+    );
+    
+    const nextButton = document.getElementById('next');
+    const previousButton = document.getElementById('previous');
+    nextButton.onclick = () => {
+      let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+      if (currentSlide < data.length - 1) {
+        currentSlide += 1;
+        document.getElementById('currentSlide').innerText = currentSlide;
+        const newSlide = data[currentSlide]['image_url'];
+        slide.setAttribute('src', newSlide);
+
+        socket.emit('slide', {
+          slide: currentSlide
+        });
+      }
+    }
+    previousButton.onclick = () => {
+      let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+      if (currentSlide > 0) {
+        currentSlide -= 1;
+        document.getElementById('currentSlide').innerText = currentSlide;
+        const newSlide = data[currentSlide]['image_url'];
+        slide.setAttribute('src', newSlide);
+
+        socket.emit('slide', {
+          slide: currentSlide
+        });
+      }
+    }
+  </script>
 </body>
 </html>
