@@ -50,6 +50,7 @@
 <body>
   <div style="display: none;" id="slideshowId">{{ id }}</div>
   <div style="display: none;" id="currentSlide">0</div>
+  <div style="display: none;" id="backendUrl">{{ url }}</div>
   <div id="container"></div>
   <div class="footer">
     <button id="previous">
@@ -67,11 +68,9 @@
         client_connected: 'controls'
       });
     });
-
-    // Working with slides
-    if (window.location.hostname === "localhost") {
-      var backendUrl = "http://localhost:8000/";
-    }
+    
+    // Determine backend
+    var backendUrl = document.getElementById('backendUrl').innerText;
 
     // Setup
     const slideshowId = document.getElementById('slideshowId').innerHTML;

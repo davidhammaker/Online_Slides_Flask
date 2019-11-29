@@ -27,6 +27,7 @@
 <body>
   <div style="display: none;" id="slideshowId">{{ id }}</div>
   <div style="display: none;" id="currentSlide">0</div>
+  <div style="display: none;" id="backendUrl">{{ url }}</div>
   <div id="container"></div>
   <script>
     // Start up sockets
@@ -39,9 +40,7 @@
     });
 
     // Determine backend
-    if (window.location.hostname === "localhost") {
-      var backendUrl = "http://localhost:8000/";
-    }
+    var backendUrl = document.getElementById('backendUrl').innerText;
 
     // Setup
     const slideshowId = document.getElementById('slideshowId').innerHTML;
