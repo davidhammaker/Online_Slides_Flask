@@ -27,7 +27,13 @@ def viewer(id):
 @socketio.on('connection')
 def connection(data):
     print(data)
-    emit('my response', {'data': 'got it!'})
+    emit('deliver_slides', broadcast=True)
+
+
+@socketio.on('deliver_slides_received')
+def slide_delivery(data):
+    print(data)
+    emit('slide_delivery', data, broadcast=True)
 
 
 @socketio.on('slide')

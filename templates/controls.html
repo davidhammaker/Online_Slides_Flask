@@ -28,10 +28,6 @@
       });
     });
 
-    socket.on('slide_change', function() {
-      console.log('received slide change');
-    });
-
     // Working with slides
     if (window.location.hostname === "localhost") {
       var backendUrl = "http://localhost:8000/";
@@ -79,6 +75,13 @@
         });
       }
     }
+
+    socket.on('deliver_slides', function() {
+      socket.emit('deliver_slides_received', data);
+      socket.emit('slide', {
+        slide: document.getElementById('currentSlide').innerText
+      });
+    });
   </script>
 </body>
 </html>

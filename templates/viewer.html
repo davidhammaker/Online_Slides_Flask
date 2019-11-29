@@ -11,6 +11,7 @@
     body, div {
       margin: 0;
       background-color: #000;
+      color: #fff;
     }
     img {
       margin: 0 auto;
@@ -45,29 +46,31 @@
     // Setup
     const slideshowId = document.getElementById('slideshowId').innerHTML;
     var ids = [];
+    let slidesReceived = false;
 
     // Control image size
     const imageRefresh = () => {
-      
-      // Hide all slides
-      ids.forEach(id => {
-        document.getElementById(id).setAttribute('class', 'noShow');
-      });
+      if (slidesReceived) {
+        // Hide all slides
+        ids.forEach(id => {
+          document.getElementById(id).setAttribute('class', 'noShow');
+        });
 
-      // New slide display
-      let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
-      const slideId = `slide-${currentSlide}`;
-      let slide = document.getElementById(slideId);
-      slide.setAttribute('class', 'show');
+        // New slide display
+        let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+        const slideId = `slide-${currentSlide}`;
+        let slide = document.getElementById(slideId);
+        slide.setAttribute('class', 'show');
 
-      // Image display
-      let imageRatio = slide.width / slide.height;
-      let windowRatio = window.innerWidth / window.innerHeight;
-      if (imageRatio >= windowRatio) {
-        slide.setAttribute("style", `width:${window.innerWidth}px`);
-      }
-      else {
-        slide.setAttribute("style", `height:${window.innerHeight}px`);
+        // Image display
+        let imageRatio = slide.width / slide.height;
+        let windowRatio = window.innerWidth / window.innerHeight;
+        if (imageRatio >= windowRatio) {
+          slide.setAttribute("style", `width:${window.innerWidth}px`);
+        }
+        else {
+          slide.setAttribute("style", `height:${window.innerHeight}px`);
+        }
       }
     }
     window.onresize = () => {
@@ -75,29 +78,23 @@
     }
     setInterval(imageRefresh, 1000);
 
-    let data = [];
-    axios.get(`${backendUrl}slideshows/${slideshowId}/`)
-    .then((response) => {
-      data = response.data;
-      data.forEach((slide, index) => {
-        console.log(slide);
-        const newId = `slide-${index}`;
-        ids.push(newId);
-        let newImg = document.createElement('IMG');
-        newImg.setAttribute('id', newId);
-        newImg.setAttribute('alt', 'current slide');
-        newImg.setAttribute('onclick', 'imageRefresh()');
-        newImg.setAttribute('src', slide.image_url);
-        newImg.setAttribute('class', 'noShow');
-        document.getElementById('container').appendChild(newImg);
-      });
-      slide.setAttribute('src', data[currentSlide]['image_url']);
-    })
-    .catch(
-      (errors) => {
-        console.log(errors.response)
+    socket.on('slide_delivery', function(data) {
+      if (!slidesReceived) {
+        data.forEach((slide, index) => {
+          console.log(slide);
+          const newId = `slide-${index}`;
+          ids.push(newId);
+          let newImg = document.createElement('IMG');
+          newImg.setAttribute('id', newId);
+          newImg.setAttribute('alt', 'current slide');
+          newImg.setAttribute('onclick', 'imageRefresh()');
+          newImg.setAttribute('src', slide.image_url);
+          newImg.setAttribute('class', 'noShow');
+          document.getElementById('container').appendChild(newImg);
+        });
       }
-    );
+      slidesReceived = true;
+    });
 
     socket.on('slide_change', function(slideData) {
       currentSlide = slideData['slide'];
