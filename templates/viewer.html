@@ -7,11 +7,28 @@
   <title>Online Slides - Viewer</title>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <style>
+    body, div {
+      margin: 0;
+      background-color: #000;
+    }
+    img {
+      margin: 0 auto;
+    }
+    .noShow {
+      display: none;
+    }
+    .show {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <h1>Viewer<span style="visibility: hidden;" id="slideshowId">{{ id }}</span><span style="visibility: visible;" id="currentSlide">0</span></h1>
-  <img id="slide" alt="current slide" style="width:400px;">
+  <div style="display: none;" id="slideshowId">{{ id }}</div>
+  <div style="display: none;" id="currentSlide">0</div>
+  <div id="container"></div>
   <script>
+    // Start up sockets
     var socket = io(window.location.host);
 
     socket.on('connect', function() {
@@ -20,18 +37,60 @@
       });
     });
 
+    // Determine backend
     if (window.location.hostname === "localhost") {
       var backendUrl = "http://localhost:8000/";
     }
 
-    let slide = document.getElementById('slide');
+    // Setup
     const slideshowId = document.getElementById('slideshowId').innerHTML;
-    let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+    var ids = [];
+
+    // Control image size
+    const imageRefresh = () => {
+      
+      // Hide all slides
+      ids.forEach(id => {
+        document.getElementById(id).setAttribute('class', 'noShow');
+      });
+
+      // New slide display
+      let currentSlide = parseInt(document.getElementById('currentSlide').innerText);
+      const slideId = `slide-${currentSlide}`;
+      let slide = document.getElementById(slideId);
+      slide.setAttribute('class', 'show');
+
+      // Image display
+      let imageRatio = slide.width / slide.height;
+      let windowRatio = window.innerWidth / window.innerHeight;
+      if (imageRatio >= windowRatio) {
+        slide.setAttribute("style", `width:${window.innerWidth}px`);
+      }
+      else {
+        slide.setAttribute("style", `height:${window.innerHeight}px`);
+      }
+    }
+    window.onresize = () => {
+      imageRefresh();
+    }
+    setInterval(imageRefresh, 1000);
 
     let data = [];
     axios.get(`${backendUrl}slideshows/${slideshowId}/`)
     .then((response) => {
       data = response.data;
+      data.forEach((slide, index) => {
+        console.log(slide);
+        const newId = `slide-${index}`;
+        ids.push(newId);
+        let newImg = document.createElement('IMG');
+        newImg.setAttribute('id', newId);
+        newImg.setAttribute('alt', 'current slide');
+        newImg.setAttribute('onclick', 'imageRefresh()');
+        newImg.setAttribute('src', slide.image_url);
+        newImg.setAttribute('class', 'noShow');
+        document.getElementById('container').appendChild(newImg);
+      });
       slide.setAttribute('src', data[currentSlide]['image_url']);
     })
     .catch(
@@ -43,7 +102,9 @@
     socket.on('slide_change', function(slideData) {
       currentSlide = slideData['slide'];
       document.getElementById('currentSlide').innerText = currentSlide;
-      slide.setAttribute('src', data[currentSlide]['image_url']);
+      let changeToSlide = document.getElementById(`slide-${currentSlide}`);
+      changeToSlide.setAttribute('class', 'show');
+      imageRefresh();
     });
   </script>
 </body>
