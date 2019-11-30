@@ -136,6 +136,7 @@
         currentSlide += 1;
         document.getElementById('currentSlide').innerText = currentSlide;
         socket.emit('slide', {
+          id: slideshowId,
           slide: currentSlide
         });
         imageRefresh();
@@ -147,6 +148,7 @@
         currentSlide -= 1;
         document.getElementById('currentSlide').innerText = currentSlide;
         socket.emit('slide', {
+          id: slideshowId,
           slide: currentSlide
         });
         imageRefresh();
@@ -154,8 +156,12 @@
     }
 
     socket.on('deliver_slides', function() {
-      socket.emit('deliver_slides_received', data);
+      socket.emit('deliver_slides_received', {
+        id: slideshowId,
+        slides: data
+      });
       socket.emit('slide', {
+        id: slideshowId,
         slide: document.getElementById('currentSlide').innerText
       });
     });

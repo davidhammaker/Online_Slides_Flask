@@ -10,6 +10,9 @@
   <h1>Online Slides</h1>
   <input type="number" id="viewerId">
   <button id="go">GO</button>
+  <br>
+  <br>
+  <a href="{{ url_for('upload') }}">Click here to upload slides.</a>
   <script>
     const goButton = document.getElementById('go');
     goButton.onclick = () => {

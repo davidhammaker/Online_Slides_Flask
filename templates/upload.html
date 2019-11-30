@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Online Slides - Upload</title>
+</head>
+<body>
+  <h2>Upload Slides</h2>
+  <form action="" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>Upload <em>all slides</em> as images ('jpg', 'png').</p>
+    {{ form.files }}
+    <br>
+    <br>
+    {{ form.submit }}
+    <div id="message"></div>
+    <br>
+    <br>
+    <a href="{{ url_for('index') }}">Home</a>
+  </form>
+  <script>
+    let submit = document.getElementById('submit');
+    submit.onclick = () => {
+      submit.setAttribute('style', 'display:none;');
+      let message = document.createElement('P');
+      message.innerText = 'Your files are being uploaded. This may take a few minutes. You will be redirected when the process is complete.'
+      document.getElementById('message').appendChild(message);
+    };
+  </script>
+</body>
+</html>

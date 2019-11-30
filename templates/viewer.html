@@ -43,7 +43,7 @@
     var backendUrl = document.getElementById('backendUrl').innerText;
 
     // Setup
-    const slideshowId = document.getElementById('slideshowId').innerHTML;
+    const slideshowId = document.getElementById('slideshowId').innerText;
     var ids = [];
     let slidesReceived = false;
 
@@ -78,8 +78,8 @@
     setInterval(imageRefresh, 1000);
 
     socket.on('slide_delivery', function(data) {
-      if (!slidesReceived) {
-        data.forEach((slide, index) => {
+      if (!slidesReceived && data['id'] === slideshowId) {
+        data['slides'].forEach((slide, index) => {
           console.log(slide);
           const newId = `slide-${index}`;
           ids.push(newId);
@@ -96,11 +96,13 @@
     });
 
     socket.on('slide_change', function(slideData) {
-      currentSlide = slideData['slide'];
-      document.getElementById('currentSlide').innerText = currentSlide;
-      let changeToSlide = document.getElementById(`slide-${currentSlide}`);
-      changeToSlide.setAttribute('class', 'show');
-      imageRefresh();
+      if (slideData['id'] === slideshowId) {
+        currentSlide = slideData['slide'];
+        document.getElementById('currentSlide').innerText = currentSlide;
+        let changeToSlide = document.getElementById(`slide-${currentSlide}`);
+        changeToSlide.setAttribute('class', 'show');
+        imageRefresh();
+      }
     });
   </script>
 </body>

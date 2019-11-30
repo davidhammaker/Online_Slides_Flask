@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Online Slides - Upload</title>
+</head>
+<body>
+  <h2>Slideshow: {{ id }}</h2>
+  <p>Make sure you save this slideshow ID ({{ id }}) so that you can access this slideshow in the future. You could also bookmark this page.</p>
+  <p>You can access this slideshow at the following links:</p>
+  <br>
+  <h4>To access the slideshow with controls:</h4>
+  <div><a href="{{ url_for('controls', id=id) }}">Slideshow Controller</a></div>
+  <br>
+  <h4>To access the slideshow as a viewer:</h4>
+  <div><a href="{{ url_for('viewer', id=id) }}">Slideshow Viewer</a></div>
+  <p><em>Note:</em> To invite others to view this slideshow, share the link above or copy and share this URL: <pre><span id="host"></span>{{ url_for('viewer', id=id) }}</pre></p>
+  <p>Keep in mind that the Slideshow Viewer will only work if a corresponding Slideshow Controller is open.</p>
+  <br>
+  <br>
+  <a href="{{ url_for('index') }}">Home</a>
+  <script>
+    let host = document.getElementById('host');
+    host.innerText = window.location.origin;
+  </script>
+</body>
+</html>
