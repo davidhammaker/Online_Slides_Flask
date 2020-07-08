@@ -3,4 +3,4 @@ flask-socketio==4.2.1
 flask-cors==3.0.8
 flask-wtf==0.14.2
 requests==2.22.0
-pillow==6.2.1
+pillow==6.2.2
